@@ -4,9 +4,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -95,14 +94,14 @@ public class CarControllerTest {
                 .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$._embedded").exists())
-                .andExpect(jsonPath("$._embedded.carList", hasSize(1)))
-                .andExpect(jsonPath("$._embedded.carList[0].id", is(1)))
-                .andExpect(jsonPath("$._embedded.carList[0].condition", is(Condition.USED.name())))
-                .andExpect(jsonPath("$._embedded.carList[0].details.body", is("sedan")))
-                .andExpect(jsonPath("$._embedded.carList[0].details.model", is("Impala")))
-                .andExpect(jsonPath("$._embedded.carList[0].details.manufacturer.code", is(101)))
-                .andExpect(jsonPath("$._embedded.carList[0].details.manufacturer.name", is("Chevrolet")));
+                .andExpect(jsonPath("_embedded").exists())
+                .andExpect(jsonPath("_embedded.carList", hasSize(1)))
+                .andExpect(jsonPath("_embedded.carList[0].id", is(1)))
+                .andExpect(jsonPath("_embedded.carList[0].condition", is(Condition.USED.name())))
+                .andExpect(jsonPath("_embedded.carList[0].details.body", is("sedan")))
+                .andExpect(jsonPath("_embedded.carList[0].details.model", is("Impala")))
+                .andExpect(jsonPath("_embedded.carList[0].details.manufacturer.code", is(101)))
+                .andExpect(jsonPath("_embedded.carList[0].details.manufacturer.name", is("Chevrolet")));
     }
 
     /**
@@ -115,12 +114,31 @@ public class CarControllerTest {
                 .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.condition", is(Condition.USED.name())))
-                .andExpect(jsonPath("$.details.body", is("sedan")))
-                .andExpect(jsonPath("$.details.model", is("Impala")))
-                .andExpect(jsonPath("$.details.manufacturer.code", is(101)))
-                .andExpect(jsonPath("$.details.manufacturer.name", is("Chevrolet")));
+                .andExpect(jsonPath("id", is(1)))
+                .andExpect(jsonPath("condition", is(Condition.USED.name())))
+                .andExpect(jsonPath("details.body", is("sedan")))
+                .andExpect(jsonPath("details.model", is("Impala")))
+                .andExpect(jsonPath("details.manufacturer.code", is(101)))
+                .andExpect(jsonPath("details.manufacturer.name", is("Chevrolet")));
+    }
+
+    /**
+     * Tests for successful updation of an existing car in the system
+     * @throws Exception when car updation fails in the system
+     */
+    @Test
+    public void updateCar() throws Exception {
+        Car car = getCar();
+        car.setCondition(Condition.NEW);
+        when(carService.save(any(Car.class))).thenReturn(car);
+
+        mvc.perform(
+                put("/cars/1")
+                        .content(json.write(car).getJson())
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("condition", is(Condition.NEW.toString())));
     }
 
     /**
