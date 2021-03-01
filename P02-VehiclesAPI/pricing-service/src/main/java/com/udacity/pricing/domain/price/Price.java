@@ -10,25 +10,15 @@ import java.math.BigDecimal;
 public class Price {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Long vehicleId;
 
     private String currency;
     private BigDecimal price;
-    private Long vehicleId;
 
     public Price() {
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Price(Long id, String currency, BigDecimal price, Long vehicleId) {
-        this.id = id;
+    public Price(String currency, BigDecimal price, Long vehicleId) {
         this.currency = currency;
         this.price = price;
         this.vehicleId = vehicleId;
